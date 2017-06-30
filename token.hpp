@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 
 class Token
@@ -11,11 +12,7 @@ public:
     enum class Type {
         NAME,
         INTEGER,
-        TIMES,
-        PLUS,
-        LIST_OPEN,
-        LIST_CLOSE,
-        DIVIDE
+        OPERATOR
     };
     static const std::vector<std::string> TypeNames;
 
@@ -24,21 +21,22 @@ public:
     {
         switch(type) {
 
-        case Type::NAME:
-            string_ = string;
-            break;
+            case Type::NAME:
+                string_ = string;
+                break;
 
-        case Type::INTEGER: {
-            std::stringstream ss;
-            ss << string;
-            ss >> integer_;
-            break;
-        }
-        default:
-            // Nothing to do
-            break;
+            case Type::INTEGER: {
+                std::stringstream ss;
+                ss << string;
+                ss >> integer_;
+                break;
+            }
 
-        }
+            case Type::OPERATOR:
+                string_ = string;
+                std::cout << "Operator string " << string_ << std::endl;
+                break;
+            }
     }
 
     Type type() const {return type_; }
@@ -50,10 +48,10 @@ public:
             return string_;
 
         case Type::INTEGER: {
-            return string_;
+            return std::to_string(integer_);
         }
-        default:
-            return typeName();
+        case Type::OPERATOR:
+            return string_;
 
         }
     }

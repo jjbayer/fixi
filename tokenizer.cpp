@@ -12,6 +12,11 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 
     auto stateCallback = [&](const State & state, char c) {
 
+        if(c != ' ' && c != 0) {
+
+            buffer += c;
+        }
+
         //std::cout << "State " << state.name() << " with '" << c << "'" << std::endl;
         if(prevState && &state != prevState ) {
 //            std::cout << "trans " << prevState->name() << " " << state.name() << std::endl;
@@ -22,9 +27,6 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
             }
 //            std::cout << "Clear buffer '" << buffer << "'" << std::endl;
             buffer.clear();
-        } else if(c != ' ' && c != 0) {
-
-            buffer += c;
         }
 
 
@@ -52,7 +54,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     // Set up states
     tokenTypes[&stateName] = Token::Type::NAME;
     tokenTypes[&parseInteger] = Token::Type::INTEGER;
-    tokenTypes[&parseOperator] = Token::Type::PLUS;
+    tokenTypes[&parseOperator] = Token::Type::OPERATOR;
 
     runStateMachine(initial, input);
 
