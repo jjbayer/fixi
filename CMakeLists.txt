@@ -2,6 +2,7 @@ include_directories(".")
 
 add_library(jopl
     state.cpp
+    token.cpp
     tokenizer.cpp
     parser.cpp
     interpreter.cpp)

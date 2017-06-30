@@ -1,4 +1,5 @@
-#include <tokenizer.hpp>
+#include "tokenizer.hpp"
+#include "token.hpp"
 
 #include <iostream>
 
@@ -10,6 +11,7 @@ int main()
 
     Tokenizer tokenizer;
 
+    std::cout << program << std::endl;
     tokenizer.tokenize(program, [](std::shared_ptr<Token> token) {
         std::cout << "[" << token->typeName() << " " << token->toString() << "]" << std::endl;
     });
