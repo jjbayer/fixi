@@ -13,6 +13,6 @@ int main()
 
     std::cout << program << std::endl;
     tokenizer.tokenize(program, [](std::shared_ptr<Token> token) {
-        std::cout << "[" << token->typeName() << " " << token->toString() << "]" << std::endl;
+        std::cout << token->toString() << " " << std::endl;
     });
 }
