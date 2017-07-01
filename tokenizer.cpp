@@ -10,17 +10,21 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 
     std::unordered_map<const State *, Token::Type> tokenTypes;
 
-    auto stateCallback = [&](const State & state, char c) {
+    auto stateCallback = [&](const State & state, char c, State::Step step) {
 
-        if(c != ' ' && c != 0) {
+//        std::cout << "Go from " << (prevState ? prevState->name() : "0") << " to "
+//                  << state.name() << " with c = '" << c << "' and step = " << step << std::endl;
 
+        if(step >= State::RECORD) {
+//            std::cout << "Recording '" << c << "' because step = " << step << std::endl;
             buffer += c;
         }
 
         //std::cout << "State " << state.name() << " with '" << c << "'" << std::endl;
-        if(prevState && &state != prevState ) {
+        if( step & State::FLUSH ) {
 //            std::cout << "trans " << prevState->name() << " " << state.name() << std::endl;
 
+//            std::cout << "Flushing '" << buffer << "'" << std::endl;
             if(tokenTypes.count(prevState)) {
 //                std::cout << "Consume " << prevState->name() << std::endl;
                 consumer(std::make_shared<Token>(tokenTypes.at(prevState), buffer));
@@ -38,18 +42,19 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     State parseInteger("PARSE_INTEGER", stateCallback);
     State parseOperator("PARSE_OPERATOR", stateCallback);
 
-    initial.addTransition(" ", initial, true);
-    initial.addTransition(range('A', 'z'+1), stateName, false);
-    initial.addTransition("=()+-*/", parseOperator, false);
-    initial.addTransition(range('0', '9'+1), parseInteger, false);
+    initial.addTransition(" ", initial, State::FORWARD);
+    initial.addTransition(range('A', 'z'+1), stateName, State::WAIT);
+    initial.addTransition("=()+-*/", parseOperator, State::WAIT);
+    initial.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
 
-    stateName.addTransition(range('A', 'z'+1), stateName, true);
+    stateName.addTransition(range('A', 'z'+1), stateName, State::RECORD);
     stateName.addDefaultTransition(initial);
 
-    parseInteger.addTransition(range('0', '9'+1), parseInteger, true);
+    parseInteger.addTransition(range('0', '9'+1), parseInteger, State::RECORD);
     parseInteger.addDefaultTransition(initial);
 
-    parseOperator.addTransition("=()+-*/", initial, true);
+    parseOperator.addTransition("=()+-*/", initial, State::RECORD | State::FLUSH);
+    parseInteger.addDefaultTransition(initial);
 
     // Set up states
     tokenTypes[&stateName] = Token::Type::NAME;
@@ -59,5 +64,5 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     runStateMachine(initial, input);
 
     State finalState("FINAL", stateCallback);
-    stateCallback(finalState, 0);
+    stateCallback(finalState, 0, State::WAIT);
 }

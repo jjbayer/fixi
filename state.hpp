@@ -6,14 +6,24 @@ class State
 {
 public:
 
-    using Callback = std::function<void(const State &, char)>;
+    /// flush bit - record bit - increment bit
+    static const int WAIT = 0;
+    static const int FORWARD = 1;
+    static const int RECORD = 3;
+    static const int FLUSH = 4;
+    using Step = int;
 
-    State(const std::string & name, Callback cb): name_(name), callback_(cb), fallbackState_(nullptr) {}
+
+    using Callback = std::function<void(const State &, char, Step)>;
+
+    State(const std::string & name, Callback cb);
 
     const std::string & name() const { return name_; }
 
     /// For every character in string, add a transition to state toState
-    void addTransition(const std::string & characters, const State & toState, bool eat);
+    void addTransition(const std::string & characters,
+                       const State & toState,
+                       Step step);
 
     void addDefaultTransition(const State & toState);
 
@@ -23,7 +33,7 @@ private:
 
     struct Transition {
         const State * next;
-        bool eat;
+        State::Step step;
     };
 
     std::string name_;

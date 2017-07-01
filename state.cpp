@@ -12,14 +12,16 @@ void runStateMachine(const State &initial, const std::string &input)
     }
 }
 
-void State::addTransition(const std::string &characters, const State &toState, bool eat)
+State::State(const std::__cxx11::string &name, State::Callback cb): name_(name), callback_(cb), fallbackState_(nullptr) {}
+
+void State::addTransition(const std::string &characters, const State &toState, Step step)
 {
-    if(&toState == this && eat == false) {
+    if(&toState == this && step == WAIT) {
         throw std::runtime_error("Cannot remain in same state without consuming a character");
     }
 
     for(char c : characters) {
-        transitions_.emplace(c, Transition {&toState, eat});
+        transitions_.emplace(c, Transition {&toState, step});
     }
 }
 
@@ -32,23 +34,20 @@ const State * State::enter(std::string::const_iterator &it) const
 {
     char c = *it;
 
-
     if( transitions_.count(c) ) {
         const auto & transition = transitions_.at(c);
 
-        if(transition.eat) {
+        if(transition.step & FORWARD) {
             it++;
-        } else {
-            c = 0;
         }
 
-        callback_(*transition.next, c);
+        callback_(*transition.next, c, transition.step);
 
         return transition.next;
 
     } else if(fallbackState_) {
 
-        callback_(*fallbackState_, 0);
+        callback_(*fallbackState_, 0, WAIT | FLUSH);
 
         return fallbackState_;
 
