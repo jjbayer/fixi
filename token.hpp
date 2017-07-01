@@ -12,6 +12,7 @@ public:
     enum class Type {
         NAME,
         INTEGER,
+        FLOAT,
         OPERATOR,
         PLUS,
         MINUS,
@@ -36,4 +37,5 @@ private:
     Type type_;
     std::string string_;
     int integer_;
+    double float_;
 };

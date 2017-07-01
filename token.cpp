@@ -6,6 +6,7 @@
 const std::vector<std::string> Token::TypeNames {
     "NAME",
     "INTEGER",
+    "FLOAT",
     "OPERATOR",
     "PLUS",
     "MINUS",
@@ -34,6 +35,13 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
         break;
     }
 
+    case Type::FLOAT: {
+        std::stringstream ss;
+        ss << string;
+        ss >> float_;
+        break;
+    }
+
     case Type::OPERATOR:
     {
         static const std::unordered_map<std::string, Type> OperatorTypes {
@@ -51,7 +59,7 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
     }
 }
 
-std::__cxx11::string Token::toString() {
+std::string Token::toString() {
     switch(type_) {
 
     case Type::NAME:
@@ -59,6 +67,9 @@ std::__cxx11::string Token::toString() {
 
     case Type::INTEGER: {
         return std::to_string(integer_);
+    }
+    case Type::FLOAT: {
+        return std::to_string(float_);
     }
     default:
         return typeName();

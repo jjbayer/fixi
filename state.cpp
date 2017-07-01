@@ -1,4 +1,5 @@
 #include "state.hpp"
+#include <sstream>
 
 
 void runStateMachine(const State &initial, const std::string &input)
@@ -52,9 +53,9 @@ const State * State::enter(std::string::const_iterator &it) const
         return fallbackState_;
 
     } else {
-        std::string msg = "Unexpected character ";
-        msg += c;
-        throw std::runtime_error(msg);
+        std::stringstream msg;
+        msg << "Unexpected character '" << c << "'";
+        throw std::runtime_error(msg.str());
     }
 }
 
