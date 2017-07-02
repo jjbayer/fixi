@@ -13,6 +13,7 @@ public:
         NAME,
         INTEGER,
         FLOAT,
+        STRING,
         OPERATOR,
         PLUS,
         MINUS,

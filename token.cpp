@@ -7,6 +7,7 @@ const std::vector<std::string> Token::TypeNames {
     "NAME",
     "INTEGER",
     "FLOAT",
+    "STRING",
     "OPERATOR",
     "PLUS",
     "MINUS",
@@ -41,6 +42,10 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
         ss >> float_;
         break;
     }
+    case Type::STRING: {
+        string_ = string;
+        break;
+    }
 
     case Type::OPERATOR:
     {
@@ -70,6 +75,9 @@ std::string Token::toString() {
     }
     case Type::FLOAT: {
         return std::to_string(float_);
+    }
+    case Type::STRING: {
+        return "'" + string_ + "'";
     }
     default:
         return typeName();

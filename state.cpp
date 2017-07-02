@@ -22,7 +22,7 @@ void State::addTransition(const std::string &characters, const State &toState, S
     }
 
     for(char c : characters) {
-        transitions_.emplace(c, Transition {&toState, step});
+        transitions_[c] = {&toState, step};
     }
 }
 

@@ -15,7 +15,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 //        std::cout << "Go from " << (prevState ? prevState->name() : "0") << " to "
 //                  << state.name() << " with c = '" << c << "' and step = " << step << std::endl;
 
-        if(step >= State::RECORD) {
+        if( (step & 3) == State::RECORD ) {
 //            std::cout << "Recording '" << c << "' because step = " << step << std::endl;
             buffer += c;
         }
@@ -43,7 +43,8 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     State parseInteger("PARSE_INTEGER", stateCallback);
     State parseFloat("PARSE_FLOAT", stateCallback);
     State parseOperator("PARSE_OPERATOR", stateCallback);
-
+    State parseString("PARSE_STRING", stateCallback);
+    State escape("ESCAPE", stateCallback);
 
     expectUnary.addTransition(" ", expectUnary, State::FORWARD);
     expectUnary.addTransition(range('A', 'z'+1), parseName, State::WAIT);
@@ -51,13 +52,17 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     expectUnary.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
     expectUnary.addTransition(".", parseFloat, State::RECORD);
     expectUnary.addTransition("()", parseOperator, State::WAIT);
+    expectUnary.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
+
 
     expectBinary.addTransition(" ", expectBinary, State::FORWARD);
     expectBinary.addTransition(range('A', 'z'+1), parseName, State::WAIT);
     expectBinary.addTransition("=()+-*/", parseOperator, State::WAIT);
     expectBinary.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
+    expectBinary.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
 
-    parseName.addTransition(range('A', 'z'+1), parseName, State::RECORD);
+    parseName.addTransition(range('A', 'z'+1) + "" + range('0', '9'+1), parseName, State::RECORD);
+
     parseName.addDefaultTransition(expectBinary);
 
     parseInteger.addTransition(range('0', '9'+1), parseInteger, State::RECORD);
@@ -67,6 +72,15 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     parseFloat.addTransition(range('0', '9'+1), parseFloat, State::RECORD);
     parseFloat.addDefaultTransition(expectBinary);
 
+    static const std::string PrintableChars = range(' ', '~'+1);
+    parseString.addTransition(PrintableChars, parseString, State::RECORD);
+    parseString.addTransition("\"", expectBinary, State::FORWARD | State::FLUSH);
+    // TODO: Cannot end with open string, open list, etc.
+    parseString.addTransition("\\", escape, State::FORWARD);
+
+    escape.addTransition("\"", parseString, State::RECORD);
+
+
     parseOperator.addTransition("=+-*/", expectUnary, State::RECORD | State::FLUSH);
     parseOperator.addTransition("=()+-*/", expectBinary, State::RECORD | State::FLUSH);
 
@@ -74,6 +88,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
     tokenTypes[&parseName] = Token::Type::NAME;
     tokenTypes[&parseInteger] = Token::Type::INTEGER;
     tokenTypes[&parseFloat] = Token::Type::FLOAT;
+    tokenTypes[&parseString] = Token::Type::STRING;
     tokenTypes[&parseOperator] = Token::Type::OPERATOR;
 
     runStateMachine(expectUnary, input);
