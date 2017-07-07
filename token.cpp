@@ -18,17 +18,18 @@ const std::vector<std::string> Token::TypeNames {
     "LIST_SEPARATOR",
     "LIST_CLOSE",
     "FUNCTION_OPEN",
+    "FUNCTION",
     "FUNCTION_CLOSE",
     "ASSIGN"
 };
 
-Token::Token(Token::Type type, const std::__cxx11::string &string)
+Token::Token(Token::Type type, const std::string &string)
     : type_(type)
 {
     switch(type) {
 
     case Type::NAME:
-        string_ = string;
+        string_.reset(new std::string(string));
         break;
 
     case Type::INTEGER: {
@@ -45,12 +46,12 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
         break;
     }
     case Type::STRING: {
-        string_ = string;
+        string_.reset(new std::string(string));
         break;
     }
 
     case Type::SYMBOL: {
-        string_ = string;
+        string_.reset(new std::string(string));
         break;
     }
 
@@ -73,14 +74,14 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
     }
 }
 
-std::string Token::toString() {
+std::string Token::toString() const {
     switch(type_) {
 
     case Type::NAME:
-        return string_;
+        return *string_;
 
     case Type::SYMBOL:
-        return string_;
+        return *string_;
 
     case Type::INTEGER: {
         return std::to_string(integer_);
@@ -89,7 +90,7 @@ std::string Token::toString() {
         return std::to_string(float_);
     }
     case Type::STRING: {
-        return "'" + string_ + "'";
+        return "'" + *string_ + "'";
     }
     default:
         return typeName();

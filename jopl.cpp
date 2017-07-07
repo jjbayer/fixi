@@ -1,6 +1,6 @@
 #include "tokenizer.hpp"
 #include "token.hpp"
-#include "parser.hpp"
+#include "interpreter.hpp"
 
 #include <iostream>
 
@@ -14,18 +14,30 @@ int main()
 //    auto program = "  a bc  def";
 
     Tokenizer tokenizer;
+    Interpreter interpreter;
 
     std::cout << ">>> ";
     for (std::string line; std::getline(std::cin, line);) {
 
 
 //        std::cout << program << std::endl;
-        std::vector<std::shared_ptr<Token> > tokens;
-        tokenizer.tokenize(line, [&](std::shared_ptr<Token> token) {
-            std::cout.flush();
-            std::cout << "| " << token->typeName() << " " << token->toString() << " " << std::endl;
-            tokens.push_back(token);
-        });
+
+        try {
+            std::vector<std::shared_ptr<Token> > tokens;
+            tokenizer.tokenize(line, [&](Token token) {
+                std::cout << "| " << token.typeName() << " " << token.toString() << " " << std::endl;
+
+                interpreter.push(token);
+            });
+        } catch(const InterpreterError & e) {
+            std::cerr << "ERROR " << e.what() << std::endl;
+        }
+
+        for(const auto & token : interpreter.stack()) {
+            std::cout << token.toString() << " ";
+        }
+        std::cout << std::endl;
+
         std::cout << ">>> ";
 
     }

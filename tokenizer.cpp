@@ -27,7 +27,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 //            std::cout << "Flushing '" << buffer << "'" << std::endl;
             if(tokenTypes.count(prevState)) {
 //                std::cout << "Consume " << prevState->name() << std::endl;
-                consumer(std::make_shared<Token>(tokenTypes.at(prevState), buffer));
+                consumer(Token(tokenTypes.at(prevState), buffer));
             }
 //            std::cout << "Clear buffer '" << buffer << "'" << std::endl;
             buffer.clear();

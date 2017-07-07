@@ -13,7 +13,7 @@ class Token;
 class Tokenizer
 {
 public:
-    using Consumer = std::function<void(std::shared_ptr<Token>)>;
+    using Consumer = std::function<void(Token)>;
 
     void tokenize(const std::string & input, Consumer consumer);
 };
