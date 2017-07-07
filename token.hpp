@@ -11,6 +11,7 @@ class Token
 public:
     enum class Type {
         NAME,
+        SYMBOL,
         INTEGER,
         FLOAT,
         STRING,

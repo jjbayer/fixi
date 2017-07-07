@@ -37,59 +37,64 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
         prevState = &state;
     };
 
-    State expectUnary("EXPECT_UNARY", stateCallback);
-    State expectBinary("EXPECT_BINARY", stateCallback);
+    State neutral("NEUTRAL", stateCallback);
+//    State expectUnary("EXPECT_UNARY", stateCallback);
+//    State expectBinary("EXPECT_BINARY", stateCallback);
     State parseName("PARSE_NAME", stateCallback);
+    State parseSymbol("PARSE_SYMBOL", stateCallback);
     State parseInteger("PARSE_INTEGER", stateCallback);
+    State parseMinus("PARSE_MINUS", stateCallback);
     State parseFloat("PARSE_FLOAT", stateCallback);
-    State parseOperator("PARSE_OPERATOR", stateCallback);
+//    State parseOperator("PARSE_OPERATOR", stateCallback);
     State parseString("PARSE_STRING", stateCallback);
     State escape("ESCAPE", stateCallback);
 
-    expectUnary.addTransition(" ", expectUnary, State::FORWARD);
-    expectUnary.addTransition(range('A', 'z'+1), parseName, State::WAIT);
-    expectUnary.addTransition("-", parseInteger, State::RECORD);
-    expectUnary.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
-    expectUnary.addTransition(".", parseFloat, State::RECORD);
-    expectUnary.addTransition("()", parseOperator, State::WAIT);
-    expectUnary.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
-
-
-    expectBinary.addTransition(" ", expectBinary, State::FORWARD);
-    expectBinary.addTransition(range('A', 'z'+1), parseName, State::WAIT);
-    expectBinary.addTransition("=()+-*/,\n", parseOperator, State::WAIT);
-    expectBinary.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
-    expectBinary.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
+    neutral.addTransition(" ", neutral, State::FORWARD);
+    neutral.addTransition(range('A', 'z'+1), parseName, State::WAIT);
+    neutral.addTransition("*+<>=^", parseName, State::RECORD);
+    neutral.addTransition(":", parseSymbol, State::FORWARD);
+    neutral.addTransition("-", parseMinus, State::RECORD);
+    neutral.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
+    neutral.addTransition(".", parseFloat, State::RECORD);
+//    expectUnary.addTransition("()", parseOperator, State::WAIT);
+    neutral.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
 
     parseName.addTransition(range('A', 'z'+1) + "" + range('0', '9'+1), parseName, State::RECORD);
+    parseName.addDefaultTransition(neutral);
 
-    parseName.addDefaultTransition(expectBinary);
+    parseSymbol.addTransition(range('A', 'z'+1), parseSymbol, State::RECORD);
+    parseSymbol.addDefaultTransition(neutral);
 
     parseInteger.addTransition(range('0', '9'+1), parseInteger, State::RECORD);
     parseInteger.addTransition(".", parseFloat, State::RECORD);
-    parseInteger.addDefaultTransition(expectBinary);
+    parseInteger.addDefaultTransition(neutral);
+
+    parseMinus.addTransition(" ", parseName, State::WAIT);
+    parseMinus.addTransition(range('0', '9'+1), parseInteger, State::RECORD);
+//    parseMinus.addDefaultTransition(neutral);
 
     parseFloat.addTransition(range('0', '9'+1), parseFloat, State::RECORD);
-    parseFloat.addDefaultTransition(expectBinary);
+    parseFloat.addDefaultTransition(neutral);
 
     static const std::string PrintableChars = range(' ', '~'+1);
     parseString.addTransition(PrintableChars, parseString, State::RECORD);
-    parseString.addTransition("\"", expectBinary, State::FORWARD | State::FLUSH);
+    parseString.addTransition("\"", neutral, State::FORWARD | State::FLUSH);
     // TODO: Cannot end with open string, open list, etc.
     parseString.addTransition("\\", escape, State::FORWARD);
 
     escape.addTransition("\"", parseString, State::RECORD);
 
-    parseOperator.addTransition("=()+-*/,\n", expectBinary, State::RECORD | State::FLUSH);
+//    parseOperator.addTransition("=()+-*/,\n", expectBinary, State::RECORD | State::FLUSH);
 
     // Set up states
     tokenTypes[&parseName] = Token::Type::NAME;
+    tokenTypes[&parseSymbol] = Token::Type::SYMBOL;
     tokenTypes[&parseInteger] = Token::Type::INTEGER;
     tokenTypes[&parseFloat] = Token::Type::FLOAT;
     tokenTypes[&parseString] = Token::Type::STRING;
-    tokenTypes[&parseOperator] = Token::Type::OPERATOR;
+//    tokenTypes[&parseOperator] = Token::Type::OPERATOR;
 
-    runStateMachine(expectUnary, input);
+    runStateMachine(neutral, input);
 
     State finalState("FINAL", stateCallback);
     stateCallback(finalState, 0, State::FLUSH);
