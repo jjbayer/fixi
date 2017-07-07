@@ -14,6 +14,7 @@ const std::vector<std::string> Token::TypeNames {
     "TIMES",
     "DIVIDE",
     "LIST_OPEN",
+    "LIST_SEPARATOR",
     "LIST_CLOSE",
     "FUNCTION_OPEN",
     "FUNCTION_CLOSE",
@@ -57,6 +58,8 @@ Token::Token(Token::Type type, const std::__cxx11::string &string)
             {"(", Type::LIST_OPEN},
             {")", Type::LIST_CLOSE},
             {"=", Type::ASSIGN},
+            {",", Type::LIST_SEPARATOR},
+            {"\n", Type::LIST_SEPARATOR}
         };
         type_ = OperatorTypes.at(string);
         break;

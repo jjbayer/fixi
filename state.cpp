@@ -33,13 +33,25 @@ void State::addDefaultTransition(const State &toState)
 
 const State * State::enter(std::string::const_iterator &it) const
 {
+    static auto line = 1; // TODO: static = stupid here
+    static auto col = 1; // TODO: static = stupid here
+
     char c = *it;
+
+
 
     if( transitions_.count(c) ) {
         const auto & transition = transitions_.at(c);
 
         if(transition.step & FORWARD) {
             it++;
+
+            if(c == '\n') {
+                line++;
+                col = 1;
+            } else {
+                col++;
+            }
         }
 
         callback_(*transition.next, c, transition.step);
@@ -54,7 +66,7 @@ const State * State::enter(std::string::const_iterator &it) const
 
     } else {
         std::stringstream msg;
-        msg << "Unexpected character '" << c << "'";
+        msg << "Unexpected character '" << c << "' at line " << line << " column " << col;
         throw std::runtime_error(msg.str());
     }
 }

@@ -57,7 +57,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 
     expectBinary.addTransition(" ", expectBinary, State::FORWARD);
     expectBinary.addTransition(range('A', 'z'+1), parseName, State::WAIT);
-    expectBinary.addTransition("=()+-*/", parseOperator, State::WAIT);
+    expectBinary.addTransition("=()+-*/,\n", parseOperator, State::WAIT);
     expectBinary.addTransition(range('0', '9'+1), parseInteger, State::WAIT);
     expectBinary.addTransition("\"", parseString, State::FORWARD | State::FLUSH);
 
@@ -80,9 +80,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 
     escape.addTransition("\"", parseString, State::RECORD);
 
-
-    parseOperator.addTransition("=+-*/", expectUnary, State::RECORD | State::FLUSH);
-    parseOperator.addTransition("=()+-*/", expectBinary, State::RECORD | State::FLUSH);
+    parseOperator.addTransition("=()+-*/,\n", expectBinary, State::RECORD | State::FLUSH);
 
     // Set up states
     tokenTypes[&parseName] = Token::Type::NAME;

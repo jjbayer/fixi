@@ -20,6 +20,7 @@ public:
         TIMES,
         DIVIDE,
         LIST_OPEN,
+        LIST_SEPARATOR,
         LIST_CLOSE,
         FUNCTION_OPEN,
         FUNCTION_CLOSE,
