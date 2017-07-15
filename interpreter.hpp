@@ -1,5 +1,8 @@
 #pragma once
 #include "token.hpp"
+#include "stack.hpp"
+#include "lookup.hpp"
+
 #include <memory>
 #include <unordered_map>
 
@@ -22,18 +25,13 @@ struct UndefinedVariable: public InterpreterError
 class Interpreter
 {
 public:
-    using Stack = std::vector<Token>;
-    using Lookup = std::unordered_map<std::string, Token >;
-
     Interpreter();
-
-    void push(Token token);
 
     const Stack & stack() const { return stack_; }
 
-private:
+    void push(Token token);
 
-    Token pop_();
+private:
 
     Stack stack_;
     Lookup lookup_;

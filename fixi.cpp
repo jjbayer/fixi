@@ -33,7 +33,7 @@ int main()
             std::cerr << "ERROR " << e.what() << std::endl;
         }
 
-        for(const auto & token : interpreter.stack()) {
+        for(const auto & token : interpreter.stack().data()) {
             std::cout << token.toString() << " ";
         }
         std::cout << std::endl;

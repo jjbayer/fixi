@@ -8,6 +8,10 @@
 #include <unordered_map>
 
 
+class Stack;
+class Lookup;
+
+
 class Token
 {
 public:
@@ -31,7 +35,7 @@ public:
         ASSIGN,
     };
 
-    using Function = std::function<void(std::vector<Token> &, std::unordered_map<std::string, Token> &)>;
+    using Function = std::function<void(Stack&,Lookup&)>;
 
     static const std::vector<std::string> TypeNames;
 
