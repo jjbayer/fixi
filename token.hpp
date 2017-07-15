@@ -32,7 +32,7 @@ public:
         FUNCTION_OPEN,
         FUNCTION,
         FUNCTION_CLOSE,
-        ASSIGN,
+        ASSIGN
     };
 
     using Function = std::function<void(Stack&,Lookup&)>;
@@ -54,6 +54,13 @@ public:
 
     }
 
+    Token(std::shared_ptr<std::vector<Token> > function)
+        : type_(Type::FUNCTION)
+        , children_(function)
+
+    {
+    }
+
     Type type() const {return type_; }
     const std::string & typeName() const { return TypeNames[static_cast<int>(type_)]; }
     std::string toString() const;
@@ -63,6 +70,8 @@ public:
 
     Function function;
 
+    const std::shared_ptr<std::vector<Token> > & children() { return children_; }
+
 private:
 
     Type type_;
@@ -71,4 +80,6 @@ private:
         double float_;
     };
     std::shared_ptr<std::string> string_;
+    std::shared_ptr<std::vector<Token> > children_;
+
 };

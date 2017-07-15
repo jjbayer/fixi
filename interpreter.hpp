@@ -35,4 +35,5 @@ private:
 
     Stack stack_;
     Lookup lookup_;
+    std::shared_ptr<std::vector<Token> > record_;
 };

@@ -13,11 +13,11 @@ void binop(std::function<int(int,int)> opi,
            Stack & stack,
            Lookup & lookup)
 {
-    if(! stack.size() >= 2) throw InterpreterError("+ needs two operands");
+    if( stack.size() < 2) throw InterpreterError("+ needs two operands");
     static const auto Integer = Token::Type::INTEGER;
     static const auto Float = Token::Type::FLOAT;
-    auto arg1 = stack.pop();
     auto arg2 = stack.pop();
+    auto arg1 = stack.pop();
 
     auto t1 = arg1.type();
     auto t2 = arg2.type();

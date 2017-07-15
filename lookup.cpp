@@ -19,5 +19,6 @@ const Token &Lookup::get(const std::__cxx11::string &name) const
 
 void Lookup::set(const std::string &name, const Token &token)
 {
+//    std::cout << "SET LOOKUP " << name << " " << token.toString() << std::endl;
     data_.insert(std::make_pair(name, token));
 }

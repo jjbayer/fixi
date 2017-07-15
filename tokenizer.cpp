@@ -51,7 +51,7 @@ void Tokenizer::tokenize(const std::string &input, Tokenizer::Consumer consumer)
 
     neutral.addTransition(" ", neutral, State::FORWARD);
     neutral.addTransition(range('A', 'z'+1), parseName, State::WAIT);
-    neutral.addTransition("*+<>=^", parseName, State::RECORD);
+    neutral.addTransition("*+<>=^{}", parseName, State::RECORD);
     neutral.addTransition(":", parseSymbol, State::FORWARD);
     neutral.addTransition("-", parseMinus, State::RECORD);
     neutral.addTransition(range('0', '9'+1), parseInteger, State::WAIT);

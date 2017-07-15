@@ -2,6 +2,7 @@ project(fixi)
 include_directories(".")
 
 add_library(fixi
+    assign.cpp
     error.cpp
     state.cpp
     token.cpp

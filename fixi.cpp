@@ -25,7 +25,7 @@ int main()
         try {
             std::vector<std::shared_ptr<Token> > tokens;
             tokenizer.tokenize(line, [&](Token token) {
-                std::cout << "| " << token.typeName() << " " << token.toString() << " " << std::endl;
+//                std::cout << "| " << token.typeName() << " " << token.toString() << " " << std::endl;
 
                 interpreter.push(token);
             });
