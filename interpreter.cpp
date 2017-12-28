@@ -25,8 +25,14 @@ Interpreter::Interpreter()
     lookup_.set("{", Token::Function([&](Stack&, Lookup&) {
         record_.reset(new std::vector<Token>);
     }));
-    lookup_.set("}", Token::Function([&](Stack&, Lookup&) {
 
+    lookup_.set("dup", Token::Function([&](Stack& stack, Lookup& lookup) {
+        if(stack.size() < 1) {
+                        throw InterpreterError("'dup' needs an operand");
+                    }
+                    auto token = stack.pop();
+                    stack.push(token);
+                    stack.push(token);
     }));
 }
 
