@@ -57,7 +57,7 @@ void Interpreter::push(Token token)
         case Token::Type::NAME: {
             try {
                 token = lookup_.get(token.toString());
-            } catch(std::out_of_range&e) {
+            } catch(const LookupError & e) {
                 throw UndefinedVariable(token);
             }
 
