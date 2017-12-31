@@ -6,7 +6,7 @@ Interpreted stack-oriented postfix language
 ### Simple math
 
 ```
- >>> 1 2 +
+>>> 1 2 +
 3 
 ```
 ### Defining functions
